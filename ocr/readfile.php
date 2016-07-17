@@ -87,22 +87,29 @@ while ($buffer = fgets($textersetzung)) !== false)
 }
 
 
-
 // Erkennung des Alarmfax
 if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
-    // Mitteiler
-    if (preg_match("/Name\\W+(.*)\\W+Rufnummer/i", $alarmfax, $treffer)) {
-        $mitteiler = trim($treffer[1]);
+    // Mitteiler - hier nicht benötigt
+    // if (preg_match("/Name\\W+(.*)\\W+Rufnummer/i", $alarmfax, $treffer)) {
+      //  $mitteiler = trim($treffer[1]);
+    // }
+
+    // Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
+    if (preg_match("Einsatzstelle:", $alarmfax, $treffer)) {
+
     }
-    // Straße und Hausnummer
-    if (preg_match("/Stra\\S+?e(?:\\s[\\s:._]*)(.*?)\\ Haus\\S+[.:\\-\\t\\ ]+(.*)/i", $alarmfax, $treffer)) {
+
+    /*Straße und Hausnummer
+    if (preg_match("/Stra\\S+?e(?:\\s[\\s:._]*)(.*?)\\ Haus\\S+[.:\\-\\t\\ ]+(.*)/i", $alarmfax, $treffer))
+    {
         $strasse = trim($treffer[1]);
         $hausnr = trim($treffer[2]);
     }
     // Ort
     if (preg_match("/Ort[\\W:]*([0-9]{5})\\W*([\\wüöäß-]*)/i", $alarmfax, $treffer)) {
         $ort = trim($treffer[1]) . " " . trim($treffer[2]);
-    }
+    }*/
+    
     // Einsatzgrund
     if (preg_match("/Schlagw\\W*(.*)/i", $alarmfax, $treffer)) {
         $einsatzgrund = trim($treffer[1]);
@@ -121,6 +128,9 @@ if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
         }
     }
 }
+
+// Hier zweite Textersetzung einfügen, um die erstellten Variablen zu modifizieren:
+  // --> EIne Textersetzungsdatei für jede Variable, ansonsten Vorgehen wie bei globaler Ersetzung
 
 
 // DEBUGGING FÜR ENTWICKLUNG
