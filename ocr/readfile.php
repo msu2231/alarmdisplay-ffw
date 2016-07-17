@@ -5,7 +5,7 @@
  Copyright 2012-2014 Stefan Windele
 
  Version 1.0.1
- 
+
  Dieses Script liest die von der Texterkennung übergebene Textdatei ein,
  zerlegt die Struktur und speichert diese in die Datenbank.
  Als Texterkennung wurde die Software Cuneiform verwendet.
@@ -64,6 +64,29 @@ function zeile_zerlegen($n) {
     global $zeile_zerlegt, $alarmfax;
     $zeile_zerlegt = explode(":", $alarmfax[$n]);
 }
+
+// Hier Textersetzung einfügen
+$textersetzung = fopen("globaleErsetzungen", 'r');
+
+while ($buffer = fgets($textersetzung)) !== false)
+{
+  $arr = explode (';', $buffer, 2);
+  $original = $arr[0];
+  echo $original;        // for debugging purposes only
+
+  if (count ($arr) == 1)  // Should the expression be deleted or corrected?
+  {
+    $correction = "";
+  }
+  else {
+    $correction = $arr[1];
+  }
+  echo $correction;      // for debugging purposes only
+
+  str_replace ($original, $correction, $alarmfax);
+}
+
+
 
 // Erkennung des Alarmfax
 if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
@@ -161,7 +184,7 @@ if ($einsatzgrund != "") {
         // SMS-Inhalt bauen
         $smstext = "ALARM (" . date("H:i") . "): " . $einsatzgrund . "- " . $objekt . " " . $strasse . " " . $hausnr . " " . $ort . "/ " . $bemerkung;
         $smstext= substr($smstext, 0, 159);
-        
+
         //URL zusammenbauen
         $url = 'http://www.RA-Server.de/webin.php?log_user=';
         $url .= urlencode($parameter["SMSUSER"]) . '&log_pass=';
@@ -229,7 +252,7 @@ if ($einsatzgrund != "") {
             passthru("convert " . $_SERVER['argv'][2] . " /tmp/alarm/alarmfaxmail.jpg");
             $mail -> AddAttachment("/tmp/alarm/alarmfaxmail.jpg", 'alarmfax.jpg');
         }
-        
+
         $mail -> Priority = 1;
         $mail -> WordWrap = 70;
 
