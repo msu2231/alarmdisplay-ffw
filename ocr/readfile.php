@@ -95,7 +95,7 @@ if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
     // }
 
     // Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
-    if (preg_match("Einsatzstelle:", $alarmfax, $treffer)) {
+    if (preg_match("Einsatzstelle(.*?)Stadt", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Stadt"
 
     }
 
@@ -109,7 +109,7 @@ if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
     if (preg_match("/Ort[\\W:]*([0-9]{5})\\W*([\\wüöäß-]*)/i", $alarmfax, $treffer)) {
         $ort = trim($treffer[1]) . " " . trim($treffer[2]);
     }*/
-    
+
     // Einsatzgrund
     if (preg_match("/Schlagw\\W*(.*)/i", $alarmfax, $treffer)) {
         $einsatzgrund = trim($treffer[1]);
