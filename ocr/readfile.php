@@ -88,44 +88,39 @@ while ($buffer = fgets($textersetzung)) !== false)
 
 
 // Erkennung des Alarmfax
-if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
-    // Mitteiler - hier nicht benötigt
-    // if (preg_match("/Name\\W+(.*)\\W+Rufnummer/i", $alarmfax, $treffer)) {
-      //  $mitteiler = trim($treffer[1]);
-    // }
+// Mitteiler - hier nicht benötigt
+// if (preg_match("/Name\\W+(.*)\\W+Rufnummer/i", $alarmfax, $treffer)) {
+//  $mitteiler = trim($treffer[1]);
+// }
 
-    // Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
-    if (preg_match("Einsatzstelle(.*?)Stadt", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Stadt"
+// Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
+if (preg_match("/Einsatzstelle(.*?)Region/i", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Region"
+   $einsatzstelle = $treffer;
+}
 
-    }
+// Straße + Hausnummer
+if (preg_match("/Strasse\/Nr.:(.*?)Ort/i", $einsatzstelle, $treffer))
+{
+    $strasse = trim($treffer);                                                              // enthält alles von "Strasse/Nr." bis "Ort"
+}
+// Ort
+if (preg_match("/Ort(.*?)Stadt)/i", $einsatzstelle, $treffer)) {
+    $ort = trim($treffer);                                                                  // enthält alles von "Ort" bis "Stadt"
+}
 
-    /*Straße und Hausnummer
-    if (preg_match("/Stra\\S+?e(?:\\s[\\s:._]*)(.*?)\\ Haus\\S+[.:\\-\\t\\ ]+(.*)/i", $alarmfax, $treffer))
-    {
-        $strasse = trim($treffer[1]);
-        $hausnr = trim($treffer[2]);
-    }
-    // Ort
-    if (preg_match("/Ort[\\W:]*([0-9]{5})\\W*([\\wüöäß-]*)/i", $alarmfax, $treffer)) {
-        $ort = trim($treffer[1]) . " " . trim($treffer[2]);
-    }*/
+// Einsatzgrund
+if (preg_match("/tichwort(.*?)Sondersignal/i", $alarmfax, $treffer)) {                                  // Suche von "[Einsatzs]tichwort" bis "Sondersignal"
+    $einsatzgrund = trim($treffer[1]);
+}
 
-    // Einsatzgrund
-    if (preg_match("/Schlagw\\W*(.*)/i", $alarmfax, $treffer)) {
-        $einsatzgrund = trim($treffer[1]);
-        if (preg_match("/Stichwort.B[^\\w\\n]*(.*)/i", $alarmfax, $treffer)) {
-            $einsatzgrund .= " " . trim($treffer[1]);
-        }
-    }
-    // Bemerkung
-    if (preg_match("/\\W*BEMERKUNG\\W*\\n(?s)(.*)/im", $alarmfax, $treffer)) {
-        $bemerkung = trim($treffer[1]);
-    }
-    // Einsatzmittel
-    if (preg_match_all("/Name\\W+[0-9.]+\\W+\\w+\\W+\\w+\\W+([^0-9\\n]+)([0-9\\/]*)/i", $alarmfax, $treffer)) {
-        for ($i = 0; $i < count($treffer[0]); $i++) {
-            $dispoliste[] = trim($treffer[1][$i]) . " " . trim($treffer[2][$i]);
-        }
+// Bemerkung
+if (preg_match("/\\W*BEMERKUNG\\W*\\n(?s)(.*)/im", $alarmfax, $treffer)) {                  // noch nicht aktualisiert
+    $bemerkung = trim($treffer[1]);
+}
+// Einsatzmittel
+if (preg_match_all("/Name\\W+[0-9.]+\\W+\\w+\\W+\\w+\\W+([^0-9\\n]+)([0-9\\/]*)/i", $alarmfax, $treffer)) {
+    for ($i = 0; $i < count($treffer[0]); $i++) {
+        $dispoliste[] = trim($treffer[1][$i]) . " " . trim($treffer[2][$i]);
     }
 }
 
@@ -135,6 +130,7 @@ if (preg_match("/Absender[^I]*ILS.Donau.Iller/i", $alarmfax)) {
 
 // DEBUGGING FÜR ENTWICKLUNG
 echo "Mitteiler: " . $mitteiler . "\n";
+echo "Einsatzstelle: " . $einsatzstelle . "\n"
 echo "Strasse: " . $strasse . "\n";
 echo "Haus-Nr: " . $hausnr . "\n";
 echo "Ort: " . $ort . "\n";
