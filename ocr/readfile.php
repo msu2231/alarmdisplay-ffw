@@ -36,17 +36,17 @@ require "../config.inc.php";
 // Reset der Variablen
 $alarmzeit = "";
 $zeile_zerlegt = array();
-$mitteiler = "";
+$mitteiler = "0";       // nicht benötigt
 $split_strasse = array();
 $strasse = "";
-$hausnr = "";
+$hausnr = "0";          // nicht benötigt
 $ort = "";
 $objekt = "";
 $station = "";
 $einsatzgrund = "";
 $prio = 0;
 $beginndispoliste = 0;
-$bemerkung = "";
+$bemerkung = "0";       // nicht benötigt
 $dispoliste = array();
 
 // Wir lesen die Datei ein und ermitteln die Länge; der Name der Datei wird als erstes Argument an das PHP-Skript beim Aufruf übergeben.
@@ -93,6 +93,8 @@ while ($buffer = fgets($textersetzung)) !== false)
 //  $mitteiler = trim($treffer[1]);
 // }
 
+$mitteiler = 0;
+
 // Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
 if (preg_match("/Einsatzstelle(.*?)Region/i", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Region"
    $einsatzstelle = $treffer;
@@ -101,20 +103,21 @@ if (preg_match("/Einsatzstelle(.*?)Region/i", $alarmfax, $treffer)) {           
 // Straße + Hausnummer
 if (preg_match("/Strasse\/Nr.:(.*?)Ort/i", $einsatzstelle, $treffer))
 {
-    $strasse = trim($treffer);                                                              // enthält alles von "Strasse/Nr." bis "Ort"
+    $strasse = trim($treffer);
+    $hausnr = 0;                                                          // enthält alles von "Strasse/Nr." bis "Ort"
 }
 // Ort
 if (preg_match("/Ort(.*?)Stadt)/i", $einsatzstelle, $treffer)) {
-    $ort = trim($treffer);                                                                  // enthält alles von "Ort" bis "Stadt"
+    $ort = trim($treffer);                                                                  // enthält alles von "Ort" bis Stadt"
 }
 
 // Einsatzgrund
 if (preg_match("/tichwort(.*?)Sondersignal/i", $alarmfax, $treffer)) {                                  // Suche von "[Einsatzs]tichwort" bis "Sondersignal"
-    $einsatzgrund = trim($treffer[1]);
+    $einsatzgrund = trim($treffer);
 }
 
 // Bemerkung
-if (preg_match("/\\W*BEMERKUNG\\W*\\n(?s)(.*)/im", $alarmfax, $treffer)) {                  // noch nicht aktualisiert
+if (preg_match("/\\W*BEMERKUNG\\W*\\n(?s)(.*)/im", $alarmfax, $treffer)) {
     $bemerkung = trim($treffer[1]);
 }
 // Einsatzmittel
