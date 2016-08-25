@@ -96,29 +96,19 @@ while ($buffer = fgets($textersetzung)) !== false)
 $mitteiler = 0;
 
 // Einsatzstelle - als Zusammenfassung von Straße, Hausnr und Ort (Wird später getrennt)
-if (preg_match("/Einsatzstelle(.*?)Region/i", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Region"
+if (preg_match("/Einsatzstelle(.*?)Stadt/six", $alarmfax, $treffer)) {                         // Suche von "Einsatzstelle" bis "Region"
    $einsatzstelle = $treffer;
 }
 
-// Straße + Hausnummer
-if (preg_match("/Strasse\/Nr.:(.*?)Ort/i", $einsatzstelle, $treffer))
-{
-    $strasse = trim($treffer);
-    $hausnr = 0;                                                          // enthält alles von "Strasse/Nr." bis "Ort"
-}
-// Ort
-if (preg_match("/Ort(.*?)Stadt)/i", $einsatzstelle, $treffer)) {
-    $ort = trim($treffer);                                                                  // enthält alles von "Ort" bis Stadt"
-}
-
 // Einsatzgrund
-if (preg_match("/tichwort(.*?)Sondersignal/i", $alarmfax, $treffer)) {                                  // Suche von "[Einsatzs]tichwort" bis "Sondersignal"
+if (preg_match("/tichwort(.*?)Sondersignal/six", $alarmfax, $treffer)) {                                  // Suche von "[Einsatzs]tichwort" bis "Sondersignal"
     $einsatzgrund = trim($treffer);
 }
 
 // Bemerkung
 if (preg_match("/\\W*BEMERKUNG\\W*\\n(?s)(.*)/im", $alarmfax, $treffer)) {
     $bemerkung = trim($treffer[1]);
+    $bemerkung = "0";
 }
 // Einsatzmittel
 if (preg_match_all("/Name\\W+[0-9.]+\\W+\\w+\\W+\\w+\\W+([^0-9\\n]+)([0-9\\/]*)/i", $alarmfax, $treffer)) {
@@ -127,8 +117,60 @@ if (preg_match_all("/Name\\W+[0-9.]+\\W+\\w+\\W+\\w+\\W+([^0-9\\n]+)([0-9\\/]*)/
     }
 }
 
-// Hier zweite Textersetzung einfügen, um die erstellten Variablen zu modifizieren:
-  // --> EIne Textersetzungsdatei für jede Variable, ansonsten Vorgehen wie bei globaler Ersetzung
+// Zweite Textersetzung für die einzelnen Variablen
+$textersetzungEinsatzstelle = fopen("ersetzungenEinsatzstelle", 'r');
+$textersetzungStichwort = fopen ("ersetzungenStichwort", 'r');
+
+if ($textersetzungEinsatzstelle)
+{
+  while (!feof($textersetzungEinsatzstelle))
+  {
+    $buffer = fgets($textersetzungEinsatzstelle);
+    $arr = explode (';', $buffer, 2);
+    $original = $arr[0];
+
+    if (count ($arr) == 1)  // Should the expression be deleted or corrected?
+    {
+      $correction = "";
+    }
+    else {
+      $correction = $arr[1];
+    }
+
+    $einsatzstelle = str_replace ($original, $correction, $einsatzstelle);
+  }
+}
+if ($textersetzungStichwort)
+{
+  while (!feof($textersetzungStichwort))
+  {
+    $buffer = fgets($textersetzungStichwort);
+    $arr = explode (';', $buffer, 2);
+    $original = $arr[0];
+
+    if (count ($arr) == 1)  // Should the expression be deleted or corrected?
+    {
+      $correction = "";
+    }
+    else {
+      $correction = $arr[1];
+    }
+
+    $einsatzgrund = str_replace ($original, $correction, $einsatzgrund);
+  }
+}
+
+// Straße + Hausnummer
+if (preg_match("/Strasse(.*?)Ort/six", $einsatzstelle, $treffer))
+{
+    $strasse = trim((implode($treffer)));
+    $hausnr = 0;                                                          // enthält alles von "Strasse/Nr." bis "Ort"
+}
+
+// Ort
+if (preg_match("/Ort(.*?)/six", $einsatzstelle, $treffer)) {
+    $ort = trim($treffer);                                                                  // enthält alles von "Ort" bis Stadt"
+}
 
 
 // DEBUGGING FÜR ENTWICKLUNG
