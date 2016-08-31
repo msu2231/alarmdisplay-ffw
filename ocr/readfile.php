@@ -50,13 +50,14 @@ $bemerkung = "0";       // nicht benötigt
 $dispoliste = array();
 
 // Wir lesen die Datei ein und ermitteln die Länge; der Name der Datei wird als erstes Argument an das PHP-Skript beim Aufruf übergeben.
-if (isset($_GET['debug'])) {
+/*if (isset($_GET['debug'])) {
     $alarmfax = file($_GET['file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 } else {
     if (!($alarmfax = file_get_contents($_SERVER['argv'][1]))) {
         die ;
     };
-}
+}*/
+$alarmfax = file_get_contents($_GET['file']);
 $faxlaenge = count($alarmfax);
 
 //Hilfsfunktion zum Zerlegen der Zeilen
@@ -68,22 +69,25 @@ function zeile_zerlegen($n) {
 // Hier Textersetzung einfügen
 $textersetzung = fopen("globaleErsetzungen", 'r');
 
-while ($buffer = fgets($textersetzung)) !== false)
-{
-  $arr = explode (';', $buffer, 2);
-  $original = $arr[0];
-  echo $original;        // for debugging purposes only
-
-  if (count ($arr) == 1)  // Should the expression be deleted or corrected?
+  while (!feof($textersetzung))
   {
-    $correction = "";
-  }
-  else {
-    $correction = $arr[1];
-  }
-  echo $correction;      // for debugging purposes only
+    $buffer = fgets($textersetzung);
+    $arr = explode (';', $buffer, 2);
+    $original = $arr[0];
+    echo "<p>Buffer: " . $buffer . "\n</p>";
+    echo "<p>Original: " . $original . "\n</p>";        // for debugging purposes only
 
-  str_replace ($original, $correction, $alarmfax);
+    if (count ($arr) == 1)  // Should the expression be deleted or corrected?
+    {
+      $correction = "";
+    }
+    else {
+      $correction = $arr[1];
+    }
+    echo "<p>Korrektur: " . $correction . "\n</p>";      // for debugging purposes only
+
+    $alarmfax = str_replace ($original, $correction, $alarmfax);
+  }
 }
 
 
